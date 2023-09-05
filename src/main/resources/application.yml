@@ -14,9 +14,10 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 15s
   config:
-    import: "optional:configserver:"
+    import: "" #Stops importing configuration data from Config Service.When using Config Service, add "optional:configserver:"
   cloud:
     config:
+      enabled: false #Disables the Spring Cloud Config Client integration.When using Config Service, set to true
       uri: http://localhost:8888
       request-connect-timeout: 5000 # 5s
       request-read-timeout: 5000 # 5s
@@ -33,12 +34,40 @@ spring:
     hikari:
       connection-timeout: 2000 #ms
       maximum-pool-size: 5
+  security:
+    oauth2:
+      resourceserver:
+        jwt: #OAuth2 doesn’t enforce a data format for Access Tokens, so we must be explicit about our choice. In this case, we want to use JWT.
+          issuer-uri: http://localhost:8080/realms/PolarBookshop #The Keycloak URL providing information about all the relevant OAuth2 endpoints for the specific realm
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]" #Includes application name, trace ID, and span ID next to the log level (%5p)
+
+info: #Any property starting with the “info.” prefix will be returned by the info endpoint.
+  system: Polar Bookshop
 
 management:
   endpoints:
     web:
       exposure:
-        include: refresh
+        include: configprops, env, flyway, health, heapdump, info, loggers, mappings, prometheus #Exposes the /actuator/health endpoint via HTTP
+  endpoint:
+    health:
+      show-details: always #Always shows details about the application’s health
+      show-components: always #Always shows information about the components used by the application
+      probes:
+        enabled: true #Enables support for the health probes
+  info:
+    env:
+      enabled: true #Enables environmental info fetched from “info.” properties
+    java:
+      enabled: true
+    os:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name} #Adds a Micrometer common tag with the application name. This results in a Prometheus label being applied to all metrics.
 
 polar:
   greeting: Welcome to the local book catalog!

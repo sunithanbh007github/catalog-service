@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: catalog-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "9001"
     spec:
       containers:
         - name: catalog-service
@@ -25,11 +29,28 @@ spec:
           ports:
             - containerPort: 9001
           env:
-            - name: BPL_JVM_THREAD_COUNT
+            - name: BPL_JVM_THREAD_COUNT #JVM threads and Spring profile are still configured via environment variables.
               value: "50"
-            - name: SPRING_CLOUD_CONFIG_URI
-              value: http://config-service
-            - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://polar-postgres/polardb_catalog
+            #- name: SPRING_CLOUD_CONFIG_URI
+            #  value: http://config-service
             - name: SPRING_PROFILES_ACTIVE
               value: testdata
+          livenessProbe: #Configuration for the liveness probe
+            httpGet: #Uses an HTTP GET request to get the liveness state
+              path: /actuator/health/liveness #The endpoint to call for the liveness state
+              port: 9001 #The port to use to fetch the liveness state
+            initialDelaySeconds: 10 #An initial delay before starting checking the liveness state
+            periodSeconds: 5 #The frequency for checking the liveness state
+          readinessProbe: #Configuration for the readiness probe
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9001
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          volumeMounts: #Mounts the ConfigMap in the container as a volume
+            - name: catalog-config-volume
+              mountPath: /workspace/config #Spring Boot will automatically find and include property files from this folder.
+      volumes: #Defines volumes for the Pod
+        - name: catalog-config-volume #The name of the volume
+          configMap: #The ConfigMap from which to create a volume
+            name: catalog-config

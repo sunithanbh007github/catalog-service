@@ -1,13 +1,10 @@
 package com.polarbookshop.catalogservice.domain;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
 
 import java.time.Instant;
 
@@ -42,10 +39,16 @@ public record Book(
         @LastModifiedDate
         Instant lastModifiedDate,
 
+        @CreatedBy //Who created the entity
+        String createdBy,
+
+        @LastModifiedBy //Who modified the entity the last time
+        String lastModifiedBy,
+
         @Version
         int version
 ) {
         public static Book of(String isbn, String title, String author, Double price, String publisher) {
-                return new Book(null, isbn, title, author, price, publisher, null, null, 0);
+                return new Book(null, isbn, title, author, price, publisher, null, null, null, null, 0);
         }
 }
