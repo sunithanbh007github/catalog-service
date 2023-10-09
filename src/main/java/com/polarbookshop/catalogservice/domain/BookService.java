@@ -1,9 +1,14 @@
 package com.polarbookshop.catalogservice.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class BookService {
+    private static final Logger log = LoggerFactory.getLogger(BookService.class);
     private final BookRepository bookRepository;
 
     public BookService(BookRepository bookRepository) {
@@ -15,8 +20,19 @@ public class BookService {
     }
 
     public Book viewBookDetails(String isbn) {
-        return bookRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new BookNotFoundException(isbn));
+        /*return bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new BookNotFoundException(isbn));*/
+        log.info("here..");
+        Optional<Book> b = bookRepository.findByIsbn(isbn);
+        log.info("here..11");
+        if(b.isPresent()){
+            log.info("here..22");
+            Book aBook = b.get();
+            log.info("here..33");
+            return aBook;
+        }
+        log.info("here..44");
+        return null;
     }
 
     public Book addBookToCatalog(Book book) {
