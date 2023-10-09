@@ -30,9 +30,11 @@ public class BookService {
             Book aBook = b.get();
             log.info("here..33");
             return aBook;
+        }else{
+            log.info("here..44");
+            throw new BookNotFoundException(isbn);
         }
-        log.info("here..44");
-        return null;
+
     }
 
     public Book addBookToCatalog(Book book) {
