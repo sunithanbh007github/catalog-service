@@ -20,21 +20,8 @@ public class BookService {
     }
 
     public Book viewBookDetails(String isbn) {
-        /*return bookRepository.findByIsbn(isbn)
-                .orElseThrow(() -> new BookNotFoundException(isbn));*/
-        log.info("here..");
-        Optional<Book> b = bookRepository.findByIsbn(isbn);
-        log.info("here..11");
-        if(b.isPresent()){
-            log.info("here..22");
-            Book aBook = b.get();
-            log.info("here..33");
-            return aBook;
-        }else{
-            log.info("here..44");
-            throw new BookNotFoundException(isbn);
-        }
-
+        return bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new BookNotFoundException(isbn));
     }
 
     public Book addBookToCatalog(Book book) {
