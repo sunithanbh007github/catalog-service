@@ -20,6 +20,7 @@ public class BookService {
     }
 
     public Book viewBookDetails(String isbn) {
+        log.info("find the book details with ISBN {}", isbn);
         return bookRepository.findByIsbn(isbn)
                 .orElseThrow(() -> new BookNotFoundException(isbn));
     }
